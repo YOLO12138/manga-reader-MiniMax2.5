@@ -209,7 +209,7 @@ On first startup, if environment variables are set, a seed admin is created:
 ```env
 SETUP_ADMIN_USERNAME=admin
 SETUP_ADMIN_EMAIL=admin@example.com
-SETUP_ADMIN_PASSWORD=admin123
+SETUP_ADMIN_PASSWORD=changeme
 ```
 
 The `create_seed_admin()` function in `main.py`:
@@ -293,7 +293,7 @@ docker compose up -d backend
 | SETUP_ADMIN_EMAIL | admin@example.com | Initial admin email |
 | SETUP_ADMIN_PASSWORD | changeme | Initial admin password |
 | STORAGE_PATH | /app/storage/manga | Manga file storage |
-| NEXT_PUBLIC_API_URL | http://localhost:8000 | API URL |
+| NEXT_PUBLIC_API_URL | (empty) | API URL (uses relative path via nginx) |
 
 ## Key Dependencies
 

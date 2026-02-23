@@ -45,7 +45,7 @@ docker compose up --build
 On first startup, an admin account is automatically created:
 
 - **Username**: `admin`
-- **Password**: `admin123`
+- **Password**: `changeme`
 
 > ⚠️ **Important**: Change the admin password after first login!
 

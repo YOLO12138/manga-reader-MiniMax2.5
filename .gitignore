@@ -10,7 +10,7 @@ venv/
 *.egg-info/
 dist/
 build/
-
+manga-storage/
 # Node
 node_modules/
 npm-debug.log*
