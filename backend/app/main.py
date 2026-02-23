@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import os
 
@@ -88,6 +89,15 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+
+# Increase max upload size to 200MB
+@app.middleware("http")
+async def increase_max_body_size(request, call_next):
+    if request.url.path.startswith("/api/"):
+        request.state.max_body_size = 200 * 1024 * 1024  # 200MB
+    return await call_next(request)
+
 
 # Include routers
 app.include_router(auth.router)

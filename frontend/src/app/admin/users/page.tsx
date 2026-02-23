@@ -24,6 +24,13 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
+  // Password reset modal state
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetUserId, setResetUserId] = useState<number | null>(null);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState('');
+
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
       router.push('/');
@@ -73,6 +80,31 @@ export default function UsersPage() {
       setUsers(users.filter(u => u.id !== userId));
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to delete user');
+    }
+  };
+
+  const handleResetPassword = async (userId: number) => {
+    setResetUserId(userId);
+    setShowResetModal(true);
+    setResetPassword('');
+    setResetError('');
+  };
+
+  const handleSubmitResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetUserId) return;
+    
+    setResetting(true);
+    setResetError('');
+
+    try {
+      await adminApi.resetUserPassword(resetUserId, resetPassword);
+      setShowResetModal(false);
+      alert('Password reset successfully');
+    } catch (err: any) {
+      setResetError(err.response?.data?.detail || 'Failed to reset password');
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -173,13 +205,21 @@ export default function UsersPage() {
                   </button>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => handleDelete(u.id)}
-                    disabled={u.id === user.id}
-                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleResetPassword(u.id)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Reset Password
+                    </button>
+                    <button
+                      onClick={() => handleDelete(u.id)}
+                      disabled={u.id === user.id}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -270,6 +310,56 @@ export default function UsersPage() {
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                 >
                   {creating ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Reset User Password</h2>
+            
+            {resetError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {resetError}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmitResetPassword}>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetModal(false);
+                    setResetError('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resetting}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {resetting ? 'Resetting...' : 'Reset Password'}
                 </button>
               </div>
             </form>

@@ -14,7 +14,7 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
   useEffect(() => {
     const fetchPages = async () => {

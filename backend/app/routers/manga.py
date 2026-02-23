@@ -121,7 +121,7 @@ async def upload_chapter(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    """Upload a chapter as ZIP file (admin only)"""
+    """Upload a chapter as ZIP file (admin only) - ZIP is stored, not extracted"""
     # Check manga exists
     manga = db.query(Manga).filter(Manga.id == manga_id).first()
     if not manga:
@@ -135,28 +135,28 @@ async def upload_chapter(
     chapter_folder = os.path.join(STORAGE_PATH, str(manga_id), str(chapter_number))
     os.makedirs(chapter_folder, exist_ok=True)
 
-    # Save and extract ZIP
-    zip_path = os.path.join(chapter_folder, "upload.zip")
+    # Save ZIP file directly (NOT extracted)
+    zip_filename = "chapter.zip"
+    zip_path = os.path.join(chapter_folder, zip_filename)
+    
+    # Remove old zip if exists
+    if os.path.exists(zip_path):
+        os.remove(zip_path)
+    
     with open(zip_path, "wb") as f:
         content = await file.read()
         f.write(content)
 
-    # Extract ZIP
+    # Validate it's a valid ZIP
     try:
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            zip_ref.extractall(chapter_folder)
-        os.remove(zip_path)
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            # Just verify it's valid, don't extract
+            namelist = zf.namelist()
+            if not namelist:
+                raise HTTPException(status_code=400, detail="ZIP file is empty")
     except zipfile.BadZipFile:
+        os.remove(zip_path)
         raise HTTPException(status_code=400, detail="Invalid ZIP file")
-
-    # Clean up any extra folders at root of zip
-    for item in os.listdir(chapter_folder):
-        item_path = os.path.join(chapter_folder, item)
-        if os.path.isdir(item_path):
-            # Move contents up one level
-            for sub_item in os.listdir(item_path):
-                shutil.move(os.path.join(item_path, sub_item), chapter_folder)
-            os.rmdir(item_path)
 
     # Create chapter in database
     chapter = Chapter(

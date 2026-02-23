@@ -25,6 +25,12 @@ export default function Navbar() {
                     </span>
                   )}
                 </span>
+                <Link
+                  href="/settings"
+                  className="px-3 py-2 rounded bg-gray-800 hover:bg-gray-700"
+                >
+                  Settings
+                </Link>
                 {user.role === 'admin' && (
                   <Link
                     href="/admin"

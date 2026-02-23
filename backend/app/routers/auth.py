@@ -5,8 +5,7 @@ from datetime import timedelta
 
 from app.database import get_db
 from app.models import User, SiteConfig
-from app.schemas.user import UserCreate, UserResponse, Token
-from app.schemas.user import UserUpdate
+from app.schemas.user import UserCreate, UserResponse, Token, PasswordChange
 from app.auth import (
     verify_password,
     get_password_hash,
@@ -114,3 +113,36 @@ def login(
 @router.get("/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+@router.put("/password")
+def change_password(
+    password_data: PasswordChange,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Change own password (requires current password)"""
+    # Verify current password
+    if not verify_password(password_data.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect current password"
+        )
+
+    # Update password
+    current_user.hashed_password = get_password_hash(password_data.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully"}
+
+
+@router.delete("/account")
+def delete_account(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Delete own account"""
+    db.delete(current_user)
+    db.commit()
+
+    return {"message": "Account deleted successfully"}

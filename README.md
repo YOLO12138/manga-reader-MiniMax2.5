@@ -25,8 +25,8 @@ A self-hosted manga reading web application built with Next.js, FastAPI, and Pos
 1. Clone the repository:
 
 ```bash
-git clone <your-repo-url>
-cd manga
+git clone https://github.com/YOLO12138/manga-reader-MiniMax2.5 manga-reader
+cd manga-reader
 ```
 
 2. Start the application:
@@ -60,11 +60,15 @@ Copy `.env.example` to `.env` and configure:
 POSTGRES_USER=manga_user
 POSTGRES_PASSWORD=your_secure_password
 POSTGRES_DB=manga_db
+DATABASE_URL=postgresql://manga_user:your_secure_password@postgres:5432/manga_db
 
 # Backend
 SECRET_KEY=your_very_secure_secret_key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Frontend (leave empty for relative URLs via nginx)
+NEXT_PUBLIC_API_URL=
 
 # Setup Admin (first startup only)
 SETUP_ADMIN_USERNAME=admin
@@ -186,6 +190,18 @@ docker compose down -v
 # Start fresh
 docker compose up --build
 ```
+
+## Environment Variables Reference
+
+| Variable | Description |
+|----------|-------------|
+| POSTGRES_USER | Database user (default: manga_user) |
+| POSTGRES_PASSWORD | Database password |
+| POSTGRES_DB | Database name (default: manga_db) |
+| DATABASE_URL | Full connection URL (auto-constructed if not set) |
+| SECRET_KEY | JWT signing key |
+| NEXT_PUBLIC_API_URL | Frontend API URL (leave empty for relative) |
+| SETUP_ADMIN_* | Initial admin account (first startup only) |
 
 ## Troubleshooting
 

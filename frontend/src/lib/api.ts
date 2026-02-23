@@ -49,6 +49,19 @@ export const authApi = {
     const response = await api.get('/api/auth/register-allowed');
     return response.data;
   },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const response = await api.put('/api/auth/password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    return response.data;
+  },
+
+  deleteAccount: async () => {
+    const response = await api.delete('/api/auth/account');
+    return response.data;
+  },
 };
 
 // Manga API
@@ -109,7 +122,8 @@ export const chapterApi = {
   },
 
   getPageUrl: (chapterId: number, filename: string) => {
-    return `${API_URL}/api/chapters/${chapterId}/pages/${filename}`;
+    // Don't prefix with API_URL since backend already returns /api/ paths
+    return `/api/chapters/${chapterId}/pages/${filename}`;
   },
 };
 
@@ -132,6 +146,13 @@ export const adminApi = {
 
   deleteUser: async (userId: number) => {
     const response = await api.delete(`/api/admin/users/${userId}`);
+    return response.data;
+  },
+
+  resetUserPassword: async (userId: number, newPassword: string) => {
+    const response = await api.put(`/api/admin/users/${userId}/password`, {
+      new_password: newPassword,
+    });
     return response.data;
   },
 

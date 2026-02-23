@@ -104,6 +104,28 @@ manga/
             └── index.ts              # TypeScript types
 ```
 
+## Storage
+
+### Chapter Storage (ZIP-based)
+
+Starting from version 2.0, chapters are stored as ZIP files instead of extracted images:
+
+- **Storage Location**: `{STORAGE_PATH}/{manga_id}/chapters/{chapter_id}/chapter.zip`
+- **Benefits**: 
+  - Faster uploads (single file instead of many)
+  - Less disk space usage
+  - Simpler file management
+- **Image Retrieval**: Backend reads images from ZIP on-demand when pages are requested
+
+### Database Connection
+
+The backend reads DATABASE_URL from multiple sources (in order of priority):
+1. Environment variable `DATABASE_URL`
+2. `.env` file in container (`/app/.env`)
+3. Fallback: `postgresql://manga_user:manga_password@postgres:5432/manga_db`
+
+The `.env` file is copied into the Docker container during build via the Dockerfile.
+
 ## Database Models
 
 ### User
@@ -286,6 +308,7 @@ docker compose up -d backend
 | POSTGRES_USER | manga_user | Database user |
 | POSTGRES_PASSWORD | manga_password | Database password |
 | POSTGRES_DB | manga_db | Database name |
+| DATABASE_URL | (auto) | Full database connection URL |
 | SECRET_KEY | your-secret-key | JWT signing key |
 | ALGORITHM | HS256 | JWT algorithm |
 | ACCESS_TOKEN_EXPIRE_MINUTES | 30 | JWT expiry |

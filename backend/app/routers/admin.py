@@ -4,7 +4,7 @@ from typing import List
 
 from app.database import get_db
 from app.models import User
-from app.schemas.user import UserResponse, UserUpdate, UserCreate
+from app.schemas.user import UserResponse, UserUpdate, UserCreate, AdminPasswordChange
 from app.auth import get_password_hash
 from app.deps import require_admin
 
@@ -105,10 +105,37 @@ def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Check if this is the last admin user
+    if user.role == "admin":
+        admin_count = db.query(User).filter(User.role == "admin").count()
+        if admin_count <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete the only admin user"
+            )
+
     db.delete(user)
     db.commit()
 
     return {"message": "User deleted successfully"}
+
+
+@router.put("/users/{user_id}/password")
+def reset_user_password(
+    user_id: int,
+    password_data: AdminPasswordChange,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Reset any user's password (admin only)"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.hashed_password = get_password_hash(password_data.new_password)
+    db.commit()
+
+    return {"message": "Password reset successfully"}
 
 
 @router.get("/stats")
