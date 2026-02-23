@@ -1,0 +1,2 @@
+-- Initialize database
+-- This script runs when postgres container starts
