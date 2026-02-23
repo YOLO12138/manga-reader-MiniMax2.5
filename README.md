@@ -1,6 +1,6 @@
 # Manga Reader
 
-A self-hosted manga reading web application built with Next.js, FastAPI, and PostgreSQL.
+A self-hosted manga reading web application vibecoded with MiniMax M2.5 model. Built with Next.js, FastAPI, and PostgreSQL. Cost of Build: $5
 
 ## Features
 
