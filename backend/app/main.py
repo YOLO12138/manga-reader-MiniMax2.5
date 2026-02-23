@@ -75,15 +75,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration
+# CORS configuration - allow all for LAN access
+# Can be restricted via CORS_ORIGINS env variable (comma-separated)
+cors_origins = os.getenv("CORS_ORIGINS", "*")
+cors_origins_list = [o.strip() for o in cors_origins.split(",")] if cors_origins != "*" else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "http://localhost:80",
-        "http://127.0.0.1",
-        "http://127.0.0.1:80",
-    ],
+    allow_origins=cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
