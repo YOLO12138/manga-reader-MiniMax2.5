@@ -5,6 +5,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Copy .env file for build-time environment variables
+COPY .env* ./
+
 COPY . .
 RUN npm run build
 
